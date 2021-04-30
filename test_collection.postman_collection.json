@@ -1,0 +1,443 @@
+{
+	"info": {
+		"_postman_id": "577c53bc-eca6-4ceb-9c94-095a4eca30d2",
+		"name": "Test collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register new user - /doregister",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randValue = Math.random().toString().substring(2, 10); ",
+							"const email = `test_${randValue}@gmail.com`;",
+							"pm.environment.set(\"email\", email);",
+							"",
+							"const name = `name${randValue}`;",
+							"pm.environment.set('name', name);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(`${request.name} - status code is 200`, function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const jsonData = pm.response.json();",
+							"",
+							"const schema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"        name: {",
+							"            type: \"string\"",
+							"        },",
+							"        avatar: {",
+							"            type: \"string\"",
+							"        },",
+							"        password: {",
+							"            type: \"string\"",
+							"        },",
+							"        birthday: {",
+							"            type: \"number\"",
+							"        },",
+							"        email: {",
+							"            type: \"string\"",
+							"        },",
+							"        gender: {",
+							"            type: \"string\"",
+							"        },",
+							"        date_start: {",
+							"            type: \"number\"",
+							"        },",
+							"        hobby: {",
+							"            type: \"string\"",
+							"        }",
+							"    }, required: ['name', 'email', 'password']",
+							"}",
+							"",
+							"",
+							"pm.test(`${request.name} - validate response schema`, () => {",
+							"    const result = tv4.validateMultiple(jsonData, schema);",
+							"",
+							"    if(!result.valid) result.errors.forEach(error => ",
+							"    console.log(`Validation error: ${error.message}. Path: ${error.schemaPath}`));",
+							"  ",
+							"    pm.expect(result.valid).to.be.true;",
+							"});",
+							"",
+							"pm.test(`${request.name} - validate that name is correct`, () => {",
+							"    pm.expect(jsonData.name).to.eql(pm.environment.get('name'))",
+							"})",
+							"",
+							"const requestData = {",
+							"    url: pm.environment.get('base_url') + '/deleteuser',",
+							"    method: \"DELETE\",",
+							"    headers: {",
+							"        \"Content-type\": \"application/json\"",
+							"    },",
+							"    body: {",
+							"        mode: 'raw',",
+							"        raw: JSON.stringify({",
+							"            \"email\": pm.environment.get('email')",
+							"        })",
+							"    }",
+							"}",
+							"",
+							"pm.sendRequest(requestData);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"{{email}}\",\n    \"name\": \"{{name}}\",\n    \"password\": \"123456789\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/doregister",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"doregister"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login - /dologin",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randValue = Math.random().toString().substring(2, 10); ",
+							"const email = `test_${randValue}@gmail.com`;",
+							"pm.environment.set(\"email\", email);",
+							"",
+							"const name = `name${randValue}`;",
+							"pm.environment.set('name', name);",
+							"",
+							"const password = `pass${randValue}`;",
+							"pm.environment.set('password', password);",
+							"",
+							"",
+							"",
+							"const requestData = {",
+							"    url: pm.environment.get('base_url')+'/doregister',",
+							"    method: \"POST\",",
+							"    header: {",
+							"        \"Content-type\": \"application/json\"",
+							"    },",
+							"    body: {",
+							"        mode: \"raw\",",
+							"        raw: JSON.stringify({",
+							"            \"email\": pm.environment.get('email'),",
+							"            \"password\": pm.environment.get('password'),",
+							"            \"name\": pm.environment.get('name')",
+							"        })",
+							"    }",
+							"}",
+							"pm.sendRequest(requestData);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(`${request.name} - status code is 200`, function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const jsonData = pm.response.json();",
+							"",
+							"",
+							"pm.test(`${request.name} - result is true`, function () {",
+							"    pm.expect(JSON.stringify(jsonData.result)).to.eql(\"true\");",
+							"})",
+							"",
+							"const requestData = {",
+							"    url: pm.environment.get('base_url') + '/deleteuser',",
+							"    method: \"DELETE\",",
+							"    headers: {",
+							"        \"Content-type\": \"application/json\"",
+							"    },",
+							"    body: {",
+							"        mode: 'raw',",
+							"        raw: JSON.stringify({",
+							"            \"email\": pm.environment.get('email')",
+							"        })",
+							"    }",
+							"}",
+							"",
+							"pm.sendRequest(requestData);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/dologin",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"dologin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user - /useronefield",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(`${request.name} - status code is 200`, function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const jsonData = pm.response.json();",
+							"",
+							"pm.test(`${request.name} - field, value and email is correct in the message`, function () {",
+							"    pm.expect(jsonData.message).to.contain('hobby'),",
+							"    pm.expect(jsonData.message).to.contain('sport'),",
+							"    pm.expect(jsonData.message).to.contain(pm.environment.get('email'))",
+							"});",
+							"",
+							"",
+							"const requestData = {",
+							"    url: pm.environment.get('base_url') + '/deleteuser',",
+							"    method: \"DELETE\",",
+							"    headers: {",
+							"        \"Content-type\": \"application/json\"",
+							"    },",
+							"    body: {",
+							"        mode: 'raw',",
+							"        raw: JSON.stringify({",
+							"            \"email\": pm.environment.get('email')",
+							"        })",
+							"    }",
+							"}",
+							"",
+							"pm.sendRequest(requestData);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randValue = Math.random().toString().substring(2, 10); ",
+							"const email = `test_${randValue}@gmail.com`;",
+							"pm.environment.set(\"email\", email);",
+							"",
+							"const name = `name${randValue}`;",
+							"pm.environment.set('name', name);",
+							"",
+							"const password = `pass${randValue}`;",
+							"pm.environment.set('password', password);",
+							"",
+							"",
+							"",
+							"const requestData = {",
+							"    url: pm.environment.get('base_url')+'/doregister',",
+							"    method: \"POST\",",
+							"    header: {",
+							"        \"Content-type\": \"application/json\"",
+							"    },",
+							"    body: {",
+							"        mode: \"raw\",",
+							"        raw: JSON.stringify({",
+							"            \"email\": pm.environment.get('email'),",
+							"            \"password\": pm.environment.get('password'),",
+							"            \"name\": pm.environment.get('name')",
+							"        })",
+							"    }",
+							"}",
+							"pm.sendRequest(requestData);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json; charset=UTF-8",
+						"type": "text"
+					},
+					{
+						"key": "Transfer-Encoding",
+						"value": "charse",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"{{email}}\",\n    \"field\": \"hobby\",\n    \"value\": \"sport\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/useronefield",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"useronefield"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete user - /deleteuser",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randValue = Math.random().toString().substring(2, 10); ",
+							"const email = `test_${randValue}@gmail.com`;",
+							"pm.environment.set(\"email\", email);",
+							"",
+							"const name = `name${randValue}`;",
+							"pm.environment.set('name', name);",
+							"",
+							"const password = `pass${randValue}`;",
+							"pm.environment.set('password', password);",
+							"",
+							"",
+							"",
+							"const requestData = {",
+							"    url: pm.environment.get('base_url')+'/doregister',",
+							"    method: \"POST\",",
+							"    header: {",
+							"        \"Content-type\": \"application/json\"",
+							"    },",
+							"    body: {",
+							"        mode: \"raw\",",
+							"        raw: JSON.stringify({",
+							"            \"email\": pm.environment.get('email'),",
+							"            \"password\": pm.environment.get('password'),",
+							"            \"name\": pm.environment.get('name')",
+							"        })",
+							"    }",
+							"}",
+							"",
+							"pm.sendRequest(requestData, (err,res) => {",
+							"    const jsonData = res.json();",
+							"    const emailToDelete = jsonData.email;",
+							"    pm.environment.set('emailToDelete', emailToDelete);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							" const responseData = pm.response.text();",
+							"",
+							"pm.test(`${request.name} - status code is 200`, function () {",
+							"    pm.response.to.have.status(200);",
+							"}),",
+							"",
+							"pm.test(`${request.name} - user was deleted`, function () {",
+							"    pm.expect(responseData).contain(pm.environment.get('email'));",
+							"});",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json; charset=UTF-8",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"{{emailToDelete}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/deleteuser",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"deleteuser"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
